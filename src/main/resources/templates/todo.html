@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>To Do</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+            crossorigin="anonymous">
+    </script>
+</head>
+<body>
+<div class="nav-left">
+    <form th:action="@{/todo/all}" method="get">
+        <button th:if="${user.User_role == T(com.example.todolist.user.Role).MASTER}
+        or ${user.User_role == T(com.example.todolist.user.Role).ADMIN}">TodoList
+        </button>
+    </form>
+    <form th:action="@{/user/all}" method="get">
+        <input th:if="${user.User_role == T(com.example.todolist.user.Role).MASTER}"
+               type="submit" value="UserList">
+    </form>
+</div>
+<section class="todo-section">
+    <h4>To Do list</h4>
+    <form id="todoInput">
+        <label for="task">
+            <input type="text" id="task" name="task" placeholder="Enter task"/>
+        </label>
+        <label for="Deadline">
+            <input type="date" id="Deadline" name="Deadline"/>
+        </label>
+        <button name="saveBtn">Save</button>
+    </form>
+    <div id="list">
+        <table>
+            <thead>
+            <tr>
+                <th>Todo</th>
+                <th>Created</th>
+                <th>Deadline</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="todo:${todoList}" th:if="${todo.isDone()==false}">
+                <td>[[${todo.task}]]</td>
+                <td>[[${#temporals.format(todo.createdTime,'yyyy-MM-dd')}]]</td>
+                <td>[[${#temporals.format(todo.deadline,'yyyy-MM-dd')}]]</td>
+                <td class="actions">
+                    <form class="delete" th:attr="data-id=${todo.id}">
+                        <button>Delete</button>
+                    </form>
+                    <form class="update" th:attr="data-id=${todo.id}">
+                        <button>Finished</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <hr>
+        <table>
+            <thead>
+            <tr>
+                <th>Done</th>
+                <th>Created</th>
+                <th>Deadline</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="todo:${todoList}" th:if="${todo.isDone()}">
+                <td>[[${todo.task}]]</td>
+                <td>[[${#temporals.format(todo.createdTime,'yyyy-MM-dd')}]]</td>
+                <td>[[${#temporals.format(todo.deadline,'yyyy-MM-dd')}]]</td>
+                <td class="actions">
+                    <form class="delete" th:attr="data-id=${todo.id}">
+                        <button>Delete</button>
+                    </form>
+                    <form class="update" th:attr="data-id=${todo.id}">
+                        <button>Unfinished</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+<hr>
+<form class="sign-out-form" th:action="@{/logout}" method="post">
+    <div class="nav-left">
+        <input type="submit" value="Sign Out" class="logout-button"/>
+        <a href="/user">users</a>
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        $("#todoInput").submit(function () {
+
+            event.preventDefault()
+
+            var todoData = $("#todoInput").serialize()
+
+            $.ajax({
+                url: "/todo-add",
+                type: "POST",
+                data: todoData,
+
+            }).done(function (fragment) {
+                console.log("add 성공");
+                $("#list").replaceWith(fragment);
+                $(this).empty();
+                $(this).append(
+                    '<label for="task">\n' +
+                    '<input type="text" id="task" name="task" placeholder="Enter task"/>\n' +
+                    '</label>' +
+                    '<label for="Deadline">\n' +
+                    '<input type="date" id="Deadline" name="Deadline"/>\n' +
+                    '</label>' +
+                    '<button name="saveBtn">Save</button>')
+            })
+        });
+    })
+    $(document).on("click", ".delete", function () {
+        event.preventDefault()
+
+        const taskNum = $(this).data("id")
+
+        $.ajax({
+            type: 'post',
+            url: '/todo-del',
+            data: {
+                "id": taskNum
+            },
+        }).done(function (fragment) {
+            console.log("del 성공");
+            $("#list").replaceWith(fragment);
+        })
+    });
+    $(document).on("click", ".update", function () {
+        event.preventDefault()
+
+        const taskNum = $(this).data("id")
+
+        $.ajax({
+            type: 'post',
+            url: '/todo-update',
+            data: {
+                "id": taskNum
+            },
+        }).done(function (fragment) {
+            console.log("update 성공");
+            $("#list").replaceWith(fragment);
+        })
+    })
+</script>
+</body>
+</html>

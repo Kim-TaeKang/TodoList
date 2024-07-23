@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>To Do App</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<a href="/todo">todo</a>
+<hr>
+<section class="todo-section">
+    <h4>Every Todo List</h4>
+    <table>
+        <thead>
+        <tr>
+            <th>User</th>
+            <th>Todo</th>
+            <th>Created</th>
+            <th>Deadline</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="todo:${todoList}" th:if="${todo.isDone()==false}">
+            <td>[[${todo.user.User_name}]]</td>
+            <td>[[${todo.task}]]</td>
+            <td>[[${#temporals.format(todo.createdTime,'yyyy-MM-dd')}]]</td>
+            <td>[[${#temporals.format(todo.deadline,'yyyy-MM-dd')}]]</td>
+        </tr>
+        </tbody>
+    </table>
+    <hr>
+    <table>
+        <thead>
+        <tr>
+            <th>User</th>
+            <th>Done</th>
+            <th>Created</th>
+            <th>Deadline</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="todo:${todoList}" th:if="${todo.isDone()}" >
+            <td>[[${todo.user.User_name}]]</td>
+            <td>[[${todo.task}]]</td>
+            <td>[[${#temporals.format(todo.createdTime,'yyyy-MM-dd')}]]</td>
+            <td>[[${#temporals.format(todo.deadline,'yyyy-MM-dd')}]]</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>
